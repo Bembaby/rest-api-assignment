@@ -13,21 +13,51 @@ const users = [];
 
 app.post('/users', (req,res) => {
     const {name, email} = req.body;
-
     if(!name || !email){
-        return res.status(400).json({error: 'MIssing name or email'});
+        return res.status(400).json({error: 'Missing name or email'});
     }
-
     const newUser = {
         id: uuidv4(),
         name,
         email
     };
     users.push(newUser);
+    res.status(201).json(newUser);
 });
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
+app.get('/users/:id', (req,res) =>{
+    const {id}  = req.params;
+    const user = users.find(user => user.id === id);
+    if(!user){
+        return res.status(404).json({error: 'User not found'});
+    }
+    res.status(200).json(user);
+});
+
+app.put('/users/:id', (req,res) =>{
+    const {name, email} = req.body;
+    if(!name || !email){
+        return res.status(400).json({error: 'Missing name or email'});
+    }
+    const { id } = req.params;
+    const user = users.find(user => user.id === id);
+    if(!user){
+        return res.status(404).json({error: 'User not found'});
+    }
+    user.name = name;
+    user.email = email;
+    res.status(200).json(user);
+});
+
+app.delete('/users/:id', (req,res) =>{
+    const { id } = req.params;
+    const userIndex = users.findIndex(user => user.id === id);
+
+    if(userIndex === -1){
+        return res.status(404).json({error: 'User not found'});
+    }
+    users.splice(userIndex, 1);
+    res.status(204).send();
 });
 
 
